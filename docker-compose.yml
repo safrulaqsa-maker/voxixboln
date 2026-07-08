@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - KIMI_AUTH_URL=${KIMI_AUTH_URL}
+      - APP_ID=${APP_ID}
+      - APP_SECRET=${APP_SECRET}
+      - OWNER_UNION_ID=${OWNER_UNION_ID}
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=genesis_ai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+volumes:
+  mysql_data:
+
+networks:
+  genesis-network:
+    driver: bridge
